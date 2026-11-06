@@ -98,4 +98,37 @@ To measure coverage across all tests:
 ```powershell
 python -m pytest --cov=app --cov-report=term-missing
 ```
+## Error Handling
 
+All error classes are in `app/errors.py`. Every subsystem has its own exception classes and its own handler class, so a problem in one subsystem is reported with a clear message and never crashes the page.
+
+### How it works
+- `WasteSortingError` is the base class for every exception. It stores a message, a details dictionary, an HTTP status code and the name of the subsystem.
+- `SubsystemErrorHandler` is the base class for the handlers. It logs the error and returns it as JSON.
+- `register_error_handlers(app)` attaches the five subsystem handlers to the Flask app. It also handles unknown URLs (404), files that are too large (413) and unexpected errors (500).
+- Every error is returned in the same JSON format:
+
+```json
+{"error": {"code": "invalid_image", "subsystem": "classifier",
+           "message": "The file is not a valid image.", "details": {}}}
+```
+
+### Error classes per subsystem
+
+| Subsystem | Handler class | Exceptions | Raised when | Status |
+|---|---|---|---|---|
+| Classifier | `ClassifierErrorHandler` | `ClassifierError` (base) | Any classifier problem | 500 |
+| | | `InvalidImageError` | The upload is missing, empty, too large or not an image | 400 |
+| | | `ModelLoadError` | The Hugging Face model cannot be loaded | 503 |
+| | | `InferenceError` | The model fails while predicting | 500 |
+| AI Coach | `CoachErrorHandler` | `CoachError` (base) | Any coach problem | 500 |
+| | | `CoachUnavailableError` | No API key, timeout or a bad reply from the AI | 502 |
+| Rules | `RulesErrorHandler` | `RulesError` (base) | Any rules problem | 500 |
+| | | `InvalidRuleError` | A rule has an empty material, bin or region | 400 |
+| Database | `DatabaseErrorHandler` | `StorageError` | A scan cannot be saved or read | 500 |
+| Dashboard | `DashboardErrorHandler` | `DashboardError` | An invalid number of days, region, tolerance or date range | 500 |
+
+### Examples
+- Uploading a text file to `/api/scan` raises `InvalidImageError`, and the response is status 400 with `"code": "invalid_image"`.
+- If the AI coach is unavailable, `CoachService` catches `CoachUnavailableError` and uses the offline coach, so the user still gets tips.
+- If MySQL is not reachable, `StorageError` is returned as a JSON error instead of a crash.
