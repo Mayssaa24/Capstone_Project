@@ -93,7 +93,7 @@ class RulesErrorHandler(SubsystemErrorHandler):
 class DatabaseErrorHandler(SubsystemErrorHandler):
     subsystem, error_class = "database", StorageError
 
-
+#Dashboard Subsystem
 class DashboardErrorHandler(SubsystemErrorHandler):
     subsystem, error_class = "dashboard", DashboardError
 
