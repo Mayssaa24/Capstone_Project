@@ -13,23 +13,9 @@
 
 **Shared by everyone:** Connecting the four subsystems, the shared error structure, the README, the UML diagrams and the video.
 
-## Run it (Windows PowerShell)
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
- # then edit DATABASE_URL and KICONNECT_API_KEY in .env
-python run.py               # http://127.0.0.1:5000
+```Explanation video
+https://drive.google.com/file/d/1Y955B8ukOM_IEihDlNcIvEC2vYu5zHQ_/view?usp=sharing
 ```
-
-**MySQL:** `CREATE DATABASE waste_sorting CHARACTER SET utf8mb4;` and create a user, then set `DATABASE_URL=mysql+pymysql://user:password@localhost:3306/waste_sorting`. Tables are created on start.
-
-Without `KICONNECT_API_KEY` the coach automatically uses the offline tips. Backends: `clip` (default), `huggingface`, `siglip2` (set `CLASSIFIER_BACKEND`). The tests use stubs, so they need no model download and no network.
-
-The default backend is `clip` (Hugging Face `openai/clip-vit-base-patch32`, zero-shot, 9 waste descriptions). `huggingface` uses `HF_MODEL`. If `torch` has no wheel for your Python version yet, create the venv with Python 3.12 or 3.13.
-
-Optional: drop your own `app/static/background.jpg` for the page background. Camera access in browsers needs `localhost` or HTTPS.
 
 ## Testing each subsystem
 
@@ -111,5 +97,4 @@ To measure coverage across all tests:
 ```powershell
 python -m pytest --cov=app --cov-report=term-missing
 ```
-```Explanation video
-https://drive.google.com/file/d/1Y955B8ukOM_IEihDlNcIvEC2vYu5zHQ_/view?usp=sharing
+
