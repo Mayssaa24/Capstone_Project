@@ -100,7 +100,7 @@ python -m pytest --cov=app --cov-report=term-missing
 ```
 ## Error Handling
 
-All error classes are in `app/errors.py`. Every subsystem has its own exception classes and its own handler class, so a problem in one subsystem is reported with a clear message and never crashes the page.
+All error classes are in `errors.py`. Every subsystem has its own exception classes and its own handler class, so a problem in one subsystem is reported with a clear message and never crashes the page.
 
 ### How it works
 - `WasteSortingError` is the base class for every exception. It stores a message, a details dictionary, an HTTP status code and the name of the subsystem.
