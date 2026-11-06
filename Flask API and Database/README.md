@@ -47,6 +47,8 @@ The `scans` table is created automatically when the app starts.
 | confidence | float | Model confidence |
 | region | varchar(50) | Region, for example Dortmund |
 
+The class diagram of the database is saved outside the "app" folder with the name:"Database_Classdiagram.png"
+
 ## Routes
 
 | Method | Route | Description |
@@ -54,6 +56,8 @@ The `scans` table is created automatically when the app starts.
 | GET | `/` | The single page with the upload button and charts |
 | POST | `/api/scan` | Upload an image (`multipart/form-data`, field `image`); saves the scan in SQLite/MySQL and returns the result |
 | GET | `/api/dashboard` | Reads the scans from SQLite and returns summary numbers, chart data and recent scans as JSON |
+
+The class diagram of the routes is saved outside the "app" folder with the name:"Routes_Classdiagram.png"
 
 ## Setup from powershell:
 
