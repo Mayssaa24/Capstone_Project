@@ -1,4 +1,4 @@
-# Waste Sorting Assistant (Flask + SQLite/MySQL)
+# AI-Powered Waste Sorting Assistant (Flask + SQLite/MySQL)
 
 A simple Flask web application that identifies a waste item from an uploaded photo, tells the user which bin it belongs in, and stores every scan in a SQLite/MySQL database. A dashboard page reads the stored scans back from SQLite/MySQL and shows them as charts.
 
