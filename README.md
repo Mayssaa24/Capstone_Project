@@ -331,8 +331,6 @@ Bounding-box processing and physical conveyor routing are not included in these 
 
 **Title:** Homework Assignment 2 – Waste Classification and Dashboard Stream Processing
 
-**Duration:** Approximately 5-8 minutes
-
 **Video Link:** [Watch the presentation on Google Drive](https://drive.google.com/file/d/1usBMly2xbPwhD3ISNYgdeGlLLwJBiDUh/view?usp=sharing)
 
 The video explains the main Python concepts, processing files, UML class diagram, and the outputs of both demonstrations.
