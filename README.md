@@ -28,14 +28,34 @@ Every class has:
 ### 2.1 Overall flow
 
 ```mermaid
-flowchart LR
-    U[User photo] --> C[Classifier]
-    C -->|ClassificationResult| R[Rules and Database]
-    R -->|Decision| A[AI Coach]
-    R -->|stored scans| D[Dashboard]
-    A -->|CoachAdvice| O[JSON response]
-    R --> O
-    D --> O
+flowchart TD
+    U[User uploads an item photo]
+
+    U --> P[Image Preprocessor]
+    P --> CS[Classifier Service]
+    CS --> B[Classifier Backend]
+    B --> CR[Classification Result]
+
+    CR --> RE[Rules Engine]
+    RS[Rule Set] --> RE
+    RE --> D[Waste Disposal Decision]
+
+    D --> CO[AI Coach Service]
+    CO --> CA[Coach Advice]
+
+    D --> SR[Scan Recorder]
+    SR --> DB[(Database)]
+
+    DB --> REP[Scan Repository]
+    REP --> DS[Dashboard Service]
+
+    DS --> SA[Scan Analytics]
+    DS --> TC[Trend Calculator]
+    DS --> CB[Chart Builder]
+
+    CA --> OUTPUT[Application Response]
+    D --> OUTPUT
+    CB --> OUTPUT
 ```
 
 ### 2.2 Classifier subsystem
