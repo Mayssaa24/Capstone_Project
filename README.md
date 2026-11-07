@@ -60,6 +60,7 @@ flowchart TD
 
 ### 2.2 Classifier subsystem
 
+```mermaid
 classDiagram
     class BaseClassifier {
         <<abstract>>
@@ -71,19 +72,23 @@ classDiagram
         +initialize()*
         +predict(image)*
     }
+
     class HuggingFaceClassifier {
         -top_k
         +initialize()
         +predict(image)
     }
+
     class ClipZeroShotClassifier {
         +initialize()
         +predict(image)
     }
+
     class SigLIP2Classifier {
         +initialize()
         +predict(image)
     }
+
     class ClassificationResult {
         -label
         -confidence
@@ -93,25 +98,31 @@ classDiagram
         +material
         +to_dict()
     }
+
     class ImagePreprocessor {
         -max_bytes
         -max_side
         +initialize()
         +prepare(data)
     }
+
     class ClassifierService {
         -backend
         -preprocessor
         -min_confidence
+        +backend
+        +min_confidence
         +build_pipeline()
         +classify(data)
     }
+
     class WasteImage {
         -image_path
         +get_image_path()
         +set_image_path(image_path)
         +load_image()
     }
+
     class PredictionResult {
         -label
         -confidence
@@ -120,6 +131,7 @@ classDiagram
         +get_confidence()
         +set_confidence(confidence)
     }
+
     class WasteClassifier {
         -model_name
         -processor
@@ -129,6 +141,7 @@ classDiagram
         +initialize_model()
         +classify(waste_image)
     }
+
     class ModelEvaluator {
         -actual_labels
         -predicted_labels
@@ -144,13 +157,17 @@ classDiagram
     BaseClassifier <|-- HuggingFaceClassifier
     BaseClassifier <|-- ClipZeroShotClassifier
     BaseClassifier <|-- SigLIP2Classifier
-    ClassifierService --> BaseClassifier : uses selected backend
-    ClassifierService --> ImagePreprocessor : preprocesses input
-    ClassifierService ..> ClassificationResult : returns results
-    SigLIP2Classifier ..> WasteClassifier : delegates to
-    WasteClassifier --> WasteImage : receives
-    WasteClassifier ..> PredictionResult : creates
-    ModelEvaluator ..> PredictionResult : evaluates label values from
+
+    ClassifierService --> BaseClassifier : uses backend
+    ClassifierService --> ImagePreprocessor : preprocesses images
+    ClassifierService ..> ClassificationResult : produces results
+
+    SigLIP2Classifier ..> WasteClassifier : delegates classification to
+    WasteClassifier --> WasteImage : receives image
+    WasteClassifier ..> PredictionResult : creates result
+
+    ModelEvaluator ..> PredictionResult : evaluates label values
+```
 
 ### 2.3 Rules and Database subsystem
 
