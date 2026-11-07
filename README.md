@@ -171,6 +171,7 @@ classDiagram
 
 ### 2.3 Rules and Database subsystem
 
+```mermaid
 classDiagram
     class Rule {
         -material
@@ -182,6 +183,7 @@ classDiagram
         +recyclable
         +instructions
     }
+
     class RuleSet {
         -region
         -rules
@@ -191,6 +193,7 @@ classDiagram
         +get_rule(material)
         +materials()
     }
+
     class Decision {
         +label
         +confidence
@@ -202,12 +205,14 @@ classDiagram
         +instructions
         +to_dict()
     }
+
     class RulesEngine {
         -ruleset
         +ruleset
         +region
         +decide(result)
     }
+
     class Database {
         -url
         -engine
@@ -217,6 +222,7 @@ classDiagram
         +create_tables()
         +session()
     }
+
     class Scan {
         +id
         +created_at
@@ -228,6 +234,7 @@ classDiagram
         +region
         +to_dict()
     }
+
     class ScanRepository {
         -db
         +database
@@ -235,6 +242,7 @@ classDiagram
         +list_scans(region)
         +count()
     }
+
     class RoutedDecision {
         -decision
         -lane_code
@@ -242,11 +250,13 @@ classDiagram
         +lane_code
         +to_dict()
     }
+
     class DecisionMapper {
         -engine
         +engine
         +process(stream)
     }
+
     class RoutingCodeAssigner {
         -codes
         -fallback
@@ -256,6 +266,7 @@ classDiagram
         +code_for(material)
         +process(stream)
     }
+
     class ScanRecorder {
         -repository
         +repository
@@ -266,16 +277,20 @@ classDiagram
     RulesEngine --> RuleSet : uses
     RulesEngine ..> Decision : creates
     Decision --> Rule : contains selected rule
+
     ScanRepository --> Database : uses
-    ScanRepository ..> Scan : persists and retrieves
+    ScanRepository ..> Scan : stores and retrieves
     ScanRepository ..> Decision : stores decision data
-    DecisionMapper --> RulesEngine : maps classifications
-    DecisionMapper ..> RoutedDecision : creates stream item
-    RoutingCodeAssigner ..> RoutedDecision : adds routing code
+
+    DecisionMapper --> RulesEngine : uses
+    DecisionMapper ..> RoutedDecision : creates
+    RoutingCodeAssigner ..> RoutedDecision : assigns routing code
     ScanRecorder --> ScanRepository : records decisions
+```
 
 ### 2.4 AI Coach subsystem
 
+```mermaid
 classDiagram
     class CoachAdvice {
         +headline
@@ -284,6 +299,7 @@ classDiagram
         +source
         +to_dict()
     }
+
     class PromptBuilder {
         -region
         -language
@@ -291,22 +307,26 @@ classDiagram
         +language
         +build(decision)
     }
+
     class BaseCoach {
         <<abstract>>
         -prompts
         +prompts
         +advise(decision)*
     }
+
     class OfflineCoach {
         +FACTS
         +advise(decision)
     }
+
     class OpenAICoach {
         -api_key
         -model
         +model
         +advise(decision)
     }
+
     class CoachService {
         -primary
         -fallback
@@ -316,15 +336,19 @@ classDiagram
 
     BaseCoach <|-- OfflineCoach
     BaseCoach <|-- OpenAICoach
+
     BaseCoach --> PromptBuilder : uses
     CoachService --> BaseCoach : primary coach
     CoachService --> BaseCoach : fallback coach
+
     OfflineCoach ..> CoachAdvice : creates
     OpenAICoach ..> CoachAdvice : creates
+```
 
 
 ### 2.5 Dashboard subsystem
 
+```mermaid
 classDiagram
     class ScanAnalytics {
         -scans
@@ -336,12 +360,14 @@ classDiagram
         +count_by(attribute)
         +daily_counts(days, today)
     }
+
     class TrendCalculator {
         -tolerance
         +tolerance
         +initialize()
         +direction(series)
     }
+
     class ChartBuilder {
         -default_color
         -palette
@@ -352,6 +378,7 @@ classDiagram
         +bin_chart(counts)
         +trend_chart(daily)
     }
+
     class DashboardService {
         -repository
         -region
@@ -362,14 +389,16 @@ classDiagram
         +initialize()
         +build(today)
     }
+
     class ScanRepository {
         +list_scans(region)
     }
 
-    DashboardService --> ScanRepository : reads scan records from
+    DashboardService --> ScanRepository : reads scan records
     DashboardService ..> ScanAnalytics : creates
     DashboardService ..> TrendCalculator : initializes and uses
     DashboardService ..> ChartBuilder : initializes and uses
+```
 
 ## 3. Presentation Link
 
