@@ -140,6 +140,6 @@ python -m app.rules.database "mysql+pymysql://user:password@localhost:3306/waste
 - **Dashboard shows zero scans**: upload a photo first, or check that the app and the query use the same database.
 
 ## Presentation Link
-``` 
+```
 https://drive.google.com/file/d/16Pelz-nltjItrN1QjlgAqmban2k1fTb9/view?usp=drive_link
 ```
