@@ -40,192 +40,299 @@ flowchart LR
 
 ### 2.2 Classifier subsystem
 
-```mermaid
 classDiagram
+    class BaseClassifier {
+        <<abstract>>
+        -name
+        -ready
+        +name
+        +is_ready
+        +ensure_ready()
+        +initialize()*
+        +predict(image)*
+    }
+    class HuggingFaceClassifier {
+        -top_k
+        +initialize()
+        +predict(image)
+    }
+    class ClipZeroShotClassifier {
+        +initialize()
+        +predict(image)
+    }
+    class SigLIP2Classifier {
+        +initialize()
+        +predict(image)
+    }
+    class ClassificationResult {
+        -label
+        -confidence
+        -material
+        +label
+        +confidence
+        +material
+        +to_dict()
+    }
+    class ImagePreprocessor {
+        -max_bytes
+        -max_side
+        +initialize()
+        +prepare(data)
+    }
+    class ClassifierService {
+        -backend
+        -preprocessor
+        -min_confidence
+        +build_pipeline()
+        +classify(data)
+    }
     class WasteImage {
-        -image_path Path
-        +get_image_path() str
+        -image_path
+        +get_image_path()
         +set_image_path(image_path)
-        +load_image() Image
+        +load_image()
     }
     class PredictionResult {
-        -label str
-        -confidence float
-        +get_label() str
+        -label
+        -confidence
+        +get_label()
         +set_label(label)
-        +get_confidence() float
+        +get_confidence()
         +set_confidence(confidence)
     }
     class WasteClassifier {
-        -model_name str
+        -model_name
         -processor
         -model
-        +get_model_name() str
+        +get_model_name()
         +set_model_name(model_name)
         +initialize_model()
-        +classify(waste_image) PredictionResult
+        +classify(waste_image)
     }
     class ModelEvaluator {
-        -actual_labels list
-        -predicted_labels list
-        +get_actual_labels() list
+        -actual_labels
+        -predicted_labels
+        +get_actual_labels()
         +set_actual_labels(labels)
-        +get_predicted_labels() list
+        +get_predicted_labels()
         +set_predicted_labels(labels)
         +add_prediction(actual_label, predicted_label)
         +reset()
-        +evaluate() dict
+        +evaluate()
     }
-    WasteClassifier ..> WasteImage : loads
+
+    BaseClassifier <|-- HuggingFaceClassifier
+    BaseClassifier <|-- ClipZeroShotClassifier
+    BaseClassifier <|-- SigLIP2Classifier
+    ClassifierService --> BaseClassifier : uses selected backend
+    ClassifierService --> ImagePreprocessor : preprocesses input
+    ClassifierService ..> ClassificationResult : returns results
+    SigLIP2Classifier ..> WasteClassifier : delegates to
+    WasteClassifier --> WasteImage : receives
     WasteClassifier ..> PredictionResult : creates
-    ModelEvaluator ..> PredictionResult : compares labels from
-```
+    ModelEvaluator ..> PredictionResult : evaluates label values from
 
 ### 2.3 Rules and Database subsystem
 
-```mermaid
 classDiagram
     class Rule {
-        +material str
-        +bin_name str
-        +recyclable bool
-        +instructions str
+        -material
+        -bin_name
+        -recyclable
+        -instructions
+        +material
+        +bin_name
+        +recyclable
+        +instructions
     }
     class RuleSet {
-        +DEFAULTS tuple
-        +region str
+        -region
+        -rules
+        +region
         +load_defaults()
         +add_rule(rule)
-        +get_rule(material) Rule
-        +materials() list
+        +get_rule(material)
+        +materials()
     }
     class Decision {
-        +material str
-        +bin_name str
-        +recyclable bool
-        +instructions str
-        +to_dict() dict
+        +label
+        +confidence
+        +rule
+        +region
+        +material
+        +bin_name
+        +recyclable
+        +instructions
+        +to_dict()
     }
     class RulesEngine {
-        +ruleset RuleSet
-        +region str
-        +decide(result) Decision
+        -ruleset
+        +ruleset
+        +region
+        +decide(result)
     }
     class Database {
-        +url str
+        -url
+        -engine
+        -sessions
+        +url
         +initialize()
         +create_tables()
-        +session() Session
-    }
-    class ScanRepository {
-        +database Database
-        +add(decision) Scan
-        +list_scans(region) list
-        +count() int
+        +session()
     }
     class Scan {
-        +id int
-        +created_at datetime
-        +label str
-        +material str
-        +bin_name str
-        +region str
-        +to_dict() dict
+        +id
+        +created_at
+        +label
+        +material
+        +bin_name
+        +recyclable
+        +confidence
+        +region
+        +to_dict()
     }
-    RuleSet o-- Rule : contains
-    RulesEngine o-- RuleSet : uses
+    class ScanRepository {
+        -db
+        +database
+        +add(decision)
+        +list_scans(region)
+        +count()
+    }
+    class RoutedDecision {
+        -decision
+        -lane_code
+        +decision
+        +lane_code
+        +to_dict()
+    }
+    class DecisionMapper {
+        -engine
+        +engine
+        +process(stream)
+    }
+    class RoutingCodeAssigner {
+        -codes
+        -fallback
+        +codes
+        +fallback
+        +initialize(codes, fallback)
+        +code_for(material)
+        +process(stream)
+    }
+    class ScanRecorder {
+        -repository
+        +repository
+        +process(stream)
+    }
+
+    RuleSet o-- Rule : contains rules
+    RulesEngine --> RuleSet : uses
     RulesEngine ..> Decision : creates
-    Decision --> Rule : based on
-    ScanRepository o-- Database : uses
-    ScanRepository ..> Scan : stores
-    ScanRepository ..> Decision : saves
-```
+    Decision --> Rule : contains selected rule
+    ScanRepository --> Database : uses
+    ScanRepository ..> Scan : persists and retrieves
+    ScanRepository ..> Decision : stores decision data
+    DecisionMapper --> RulesEngine : maps classifications
+    DecisionMapper ..> RoutedDecision : creates stream item
+    RoutingCodeAssigner ..> RoutedDecision : adds routing code
+    ScanRecorder --> ScanRepository : records decisions
 
 ### 2.4 AI Coach subsystem
 
-```mermaid
 classDiagram
-    class PromptBuilder {
-        +region str
-        +language str
-        +build(decision) str
-    }
     class CoachAdvice {
-        +headline str
-        +tips list
-        +fun_fact str
-        +source str
-        +to_dict() dict
+        +headline
+        +tips
+        +fun_fact
+        +source
+        +to_dict()
+    }
+    class PromptBuilder {
+        -region
+        -language
+        +region
+        +language
+        +build(decision)
     }
     class BaseCoach {
         <<abstract>>
-        +prompts PromptBuilder
-        +advise(decision)* CoachAdvice
+        -prompts
+        +prompts
+        +advise(decision)*
     }
     class OfflineCoach {
-        +FACTS dict
-        +advise(decision) CoachAdvice
+        +FACTS
+        +advise(decision)
     }
     class OpenAICoach {
-        +model str
-        +advise(decision) CoachAdvice
+        -api_key
+        -model
+        +model
+        +advise(decision)
     }
     class CoachService {
-        +primary BaseCoach
-        +advise(decision) CoachAdvice
+        -primary
+        -fallback
+        +primary
+        +advise(decision)
     }
+
     BaseCoach <|-- OfflineCoach
     BaseCoach <|-- OpenAICoach
-    BaseCoach o-- PromptBuilder : uses
-    CoachService o-- BaseCoach : primary
-    CoachService o-- OfflineCoach : fallback
-    BaseCoach ..> CoachAdvice : returns
-```
+    BaseCoach --> PromptBuilder : uses
+    CoachService --> BaseCoach : primary coach
+    CoachService --> BaseCoach : fallback coach
+    OfflineCoach ..> CoachAdvice : creates
+    OpenAICoach ..> CoachAdvice : creates
+
 
 ### 2.5 Dashboard subsystem
 
-```mermaid
 classDiagram
     class ScanAnalytics {
-        +scans list
+        -scans
+        +scans
         +initialize()
-        +total() int
-        +recycling_rate() float
-        +average_confidence() float
-        +count_by(attribute) dict
-        +daily_counts(days, today) list
+        +total()
+        +recycling_rate()
+        +average_confidence()
+        +count_by(attribute)
+        +daily_counts(days, today)
     }
     class TrendCalculator {
-        +tolerance float
+        -tolerance
+        +tolerance
         +initialize()
-        +direction(series) str
+        +direction(series)
     }
     class ChartBuilder {
-        +default_color str
-        +palette dict
+        -default_color
+        -palette
+        +default_color
+        +palette
         +initialize()
-        +material_chart(counts) dict
-        +bin_chart(counts) dict
-        +trend_chart(daily) dict
+        +material_chart(counts)
+        +bin_chart(counts)
+        +trend_chart(daily)
     }
     class DashboardService {
-        +repository ScanRepository
-        +region str
-        +days int
+        -repository
+        -region
+        -days
+        +repository
+        +region
+        +days
         +initialize()
-        +build(today) dict
+        +build(today)
     }
     class ScanRepository {
-        <<interface>>
-        +list_scans(region) list
+        +list_scans(region)
     }
-    DashboardService o-- ScanAnalytics : creates
-    DashboardService o-- TrendCalculator : uses
-    DashboardService o-- ChartBuilder : uses
-    DashboardService --> ScanRepository : reads scans
-```
 
----
+    DashboardService --> ScanRepository : reads scan records from
+    DashboardService ..> ScanAnalytics : creates
+    DashboardService ..> TrendCalculator : initializes and uses
+    DashboardService ..> ChartBuilder : initializes and uses
 
 ## 3. Presentation Link
 
