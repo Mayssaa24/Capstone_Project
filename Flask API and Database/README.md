@@ -31,7 +31,7 @@ A simple Flask web application that identifies a waste item from an uploaded pho
 - SQLite/MySQL with SQLAlchemy(Database Access Layer)and the PyMySQL driver
 - Hugging Face model for the image classification
 - HTML, CSS and JavaScript for the single page
-
+  
 ## Database
 
 The `scans` table is created automatically when the app starts.
@@ -47,7 +47,7 @@ The `scans` table is created automatically when the app starts.
 | confidence | float | Model confidence |
 | region | varchar(50) | Region, for example Dortmund |
 
-The class diagram of the database is saved outside the "app" folder with the name:"Database_Classdiagram.png"
+The UML class diagram of the database is saved outside the "app" folder with the name:"Database_Classdiagram.png"
 
 ## Routes
 
@@ -57,15 +57,15 @@ The class diagram of the database is saved outside the "app" folder with the nam
 | POST | `/api/scan` | Upload an image (`multipart/form-data`, field `image`); saves the scan in SQLite/MySQL and returns the result |
 | GET | `/api/dashboard` | Reads the scans from SQLite and returns summary numbers, chart data and recent scans as JSON |
 
-The class diagram of the routes is saved outside the "app" folder with the name:"Routes_Classdiagram.png"
+The UML class diagram of the routes is saved outside the "app" folder with the name:"Routes_Classdiagram.png"
 
 ## Setup from powershell:
 
 1. Clone the repository:
 
    ```powershell
-   git clone https://github.com/Mayssaa24/Capstone_Project/tree/Homeassignment003
-   cd "your_repo_path_from_local_folder"/../Homeassignment003
+   git clone https://github.com/Mayssaa24/Capstone_Project/tree/main
+   cd "your_repo_path_from_local_folder"/../main
    ```
 
 2. Create a virtual environment and install the packages:
@@ -103,13 +103,28 @@ python run.py
 Open http://127.0.0.1:5000/ in a browser, upload a photo, then check the dashboard. The first run downloads the classifier model, so it needs internet and takes little longer.
 
 ## Check the data in SQLite
-```sql
+
+Run this from the folder that contains `waste_sorting.db`:
+
+```powershell
 sqlite3 waste_sorting.db
+```
+
+Then, at the `sqlite>` prompt:
+
+```sql
+.headers on
+.mode column
 SELECT * FROM scans;
+.quit
 ```
 ## Check the data in MySQL
+```powershell
+mysql -u root -p
+```
+
 ```sql
-USE waste_sorting;
+USE sorting_desk;
 SELECT * FROM scans;
 ```
 Or from the project folder, without opening SQLite/MySQL:
@@ -123,3 +138,8 @@ python -m app.rules.database "mysql+pymysql://user:password@localhost:3306/waste
 - **`No module named 'MySQLdb'`**: change `mysql://` to `mysql+pymysql://` in `DATABASE_URL`.
 - **`Can't connect to MySQL server` / `Access denied`**: check that MySQL is running and that the host, port, user, password and database name are correct.
 - **Dashboard shows zero scans**: upload a photo first, or check that the app and the query use the same database.
+
+## Presentation Link
+``` 
+https://drive.google.com/file/d/16Pelz-nltjItrN1QjlgAqmban2k1fTb9/view?usp=drive_link
+```
