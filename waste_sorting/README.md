@@ -400,7 +400,7 @@ classDiagram
 **Requirements:** Docker Desktop (running) and Git. Internet is needed on the first start, because the classifier model is downloaded.
 
 ```powershell
-git clone https://github.com/DIVYA-1527/Capstone-Project.git
+git clone https://github.com/DIVYA-1527/Capstone-Project.git](https://github.com/Mayssaa24/Capstone_Project/tree/main/waste_sorting
 cd Capstone-Project
 docker compose up --build
 ```
