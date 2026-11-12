@@ -1,0 +1,15 @@
+Flask>=3.0
+SQLAlchemy>=2.0
+PyMySQL>=1.1
+cryptography
+PyMySQL>=1.1
+cryptography>=42
+Pillow>=10.0
+transformers>=4.40
+torch
+scikit-learn
+openai>=1.0
+python-dotenv>=1.0
+pytest>=8.0
+pytest-cov>=5.0
+gunicorn>=22
