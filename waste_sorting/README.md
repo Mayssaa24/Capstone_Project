@@ -4,18 +4,14 @@ A user takes a photo of an item. An AI model classifies the material, local rule
 
 ---
 
-## 1. Team Overview 
+## 1. Team Overview
 
-
-| Name | Overall role | 1. OOP classes | 2. Stream processing | 3. Flask and MySQL | 4. Errors and tests |
-|---|---|---|---|---|---|
-| **Manjeet (Classifier)** | Identifies the item in the uploaded photo using a Hugging Face model. | Classes that check the photo and run the model behind one interface (`ImagePreprocessor`, `BaseClassifier`, `ClassifierService`). | Pipeline that drops unsure results, maps labels to materials and keeps the best few (`ConfidenceFilter` \| `LabelNormalizer` \| `TopKLimiter`). | Photo upload route `/api/scan`: validates the image, runs the model, returns the result. | Error classes and handler for bad images and model failures; 57 tests. |
-| **Deepika (Rules and Database)** | Decides which bin the item goes in and stores every scan. | Classes for the recycling rules and for saving scans (`RuleSet`, `RulesEngine`, `Database`, `ScanRepository`). | Pipeline that turns results into decisions, adds a lane code and saves them (`DecisionMapper` \| `RoutingCodeAssigner` \| `ScanRecorder`). | SQLAlchemy models and the MySQL connection that save and read scans. | Error classes and handlers for invalid rules and database failures; 43 tests. |
-| **Divya (Dashboard)** | Turns saved scans into charts and trends, and built the single page. | Classes that calculate the statistics and build the chart data (`ScanAnalytics`, `ChartBuilder`, `DashboardService`). | Pipeline that filters scans by region and date and counts them per day (`RegionFilter` \| `DateRangeFilter` \| `DailyAggregator`). | `/api/dashboard` route and the single page with the photo buttons and charts. | Error class and handler for the dashboard; 35 tests. |
-| **Mayassa (AI Coach)** | Writes the tips and fun fact, with offline tips if the AI is down. | Classes that ask the AI for advice or use offline tips (`PromptBuilder`, `OpenAICoach`, `OfflineCoach`, `CoachService`). | Pipeline that builds the prompt, gets advice and cleans the tips (`PromptStage` \| `AdviceStage` \| `TipCleaner` \| `TipLimiter`). | Connects the KI:connect AI to the scan response, with an offline fallback. | Error class and handler for an unavailable AI, plus the fallback; 40 tests. |
-
-**Shared by everyone:** Connecting the four subsystems, the shared error structure, the README, the UML diagrams and the video.
-
+| Team member | Subsystem | Implemented classes | Source files |
+|---|---|---|---|
+| [Manjeet] | Classifier | `WasteImage`, `PredictionResult`, `WasteClassifier`, `ModelEvaluator` | `app/classifier/classifier_oop.py` |
+| [Deepika] | Rules and Database | `Rule`, `RuleSet`, `Decision`, `RulesEngine`, `Database`, `ScanRepository` | `app/rules/` |
+| [Mayssaa] | AI Coach | `PromptBuilder`, `CoachAdvice`, `BaseCoach`, `OfflineCoach`, `OpenAICoach`, `CoachService` | `app/coach/` |
+| [Divya] | Dashboard | `ScanAnalytics`, `TrendCalculator`, `ChartBuilder`, `DashboardService` | `app/dashboard/` |
 
 
 ## 2. System Design
@@ -66,17 +62,6 @@ classDiagram
         +ensure_ready()
         +initialize()*
         +predict(image)*
-    }
-
-    class HuggingFaceClassifier {
-        -top_k
-        +initialize()
-        +predict(image)
-    }
-
-    class ClipZeroShotClassifier {
-        +initialize()
-        +predict(image)
     }
 
     class SigLIP2Classifier {
@@ -149,8 +134,6 @@ classDiagram
         +evaluate()
     }
 
-    BaseClassifier <|-- HuggingFaceClassifier
-    BaseClassifier <|-- ClipZeroShotClassifier
     BaseClassifier <|-- SigLIP2Classifier
 
     ClassifierService --> BaseClassifier : uses backend
@@ -467,9 +450,9 @@ python run.py               # http://127.0.0.1:5000
 
 **MySQL:** run `CREATE DATABASE waste_sorting CHARACTER SET utf8mb4;`, create a user, and set `DATABASE_URL=mysql+pymysql://user:password@localhost:3306/waste_sorting`. Tables are created on start. For a quick test without MySQL you can use SQLite: `DATABASE_URL=sqlite:///waste_sorting.db`.
 
-Without `KICONNECT_API_KEY` the coach automatically uses the offline tips. Backends: `clip` (default), `huggingface`, `siglip2` (set `CLASSIFIER_BACKEND`). The tests use stubs, so they need no model download and no network.
+Without `KICONNECT_API_KEY` the coach automatically uses the offline tips. The tests use stubs, so they need no model download and no network.
 
-The default backend is `clip` (Hugging Face `openai/clip-vit-base-patch32`, zero-shot, 9 waste descriptions). `huggingface` uses `HF_MODEL`. If `torch` has no wheel for your Python version yet, create the venv with Python 3.12 or 3.13.
+The classifier uses the Hugging Face model `prithivMLmods/Augmented-Waste-Classifier-SigLIP2` (SigLIP2), an image classifier trained on waste categories. It is downloaded automatically on first use. If `torch` has no wheel for your Python version yet, create the venv with Python 3.12 or 3.13.
 
 Optional: drop your own `app/static/background.jpg` for the page background. Camera access in browsers needs `localhost` or HTTPS.
 
@@ -519,9 +502,7 @@ python -m pytest -v
 ### Each subsystem
 
 ```powershell
-
 python -m pytest tests/test_classifier.py -v
-
 python -m pytest tests/test_rules_database.py -v
 python -m pytest tests/test_dashboard.py -v
 python -m pytest tests/test_coach.py -v
@@ -535,8 +516,6 @@ python -m pytest -m integration -v
 python -m pytest -m functional -v
 python -m pytest -m regression -v
 ```
-
-python -m pytest -m unit --cov=app --cov-report=term-missing
 
 ### Test coverage
 

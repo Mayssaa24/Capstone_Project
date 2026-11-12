@@ -11,12 +11,7 @@ from PIL import Image
 import pytest
 
 from app import create_app
-from app.classifier.backends import (
-    BaseClassifier,
-    ClipZeroShotClassifier,
-    HuggingFaceClassifier,
-    SigLIP2Classifier,
-)
+from app.classifier.backends import BaseClassifier, SigLIP2Classifier
 from app.classifier.models import ClassificationResult
 from app.classifier.preprocessor import ImagePreprocessor
 from app.classifier.service import ClassifierService
@@ -35,7 +30,6 @@ from tests.helpers import (
     StubClassifier,
     error_client,
     install_fake_oop,
-    install_fake_transformers,
     make_image_bytes,
 )
 
@@ -127,7 +121,9 @@ def oop(monkeypatch):
 
 
 ROOT = Path(__file__).resolve().parents[1]
-#unit tests
+
+
+# unit tests
 @unit
 def test_unit_01_result_stores_label_and_confidence():
     r = ClassificationResult("glass jar", 0.75)
@@ -227,68 +223,6 @@ def test_unit_14_ensure_ready_initialises_only_once_and_name_setter():
     assert clf.init_calls == 1 and clf.is_ready is True
     clf.name = "renamed"
     assert clf.name == "renamed"
-
-
-@unit
-def test_unit_15_huggingface_classifier_loads_and_predicts(monkeypatch):
-    calls = install_fake_transformers(monkeypatch, outputs=[{"label": "cardboard", "score": 0.7},
-                                                            {"label": "glass", "score": 0.2}])
-    clf = HuggingFaceClassifier("some/model", top_k=2)
-    clf.ensure_ready()
-    results = clf.predict(Image.new("RGB", (8, 8)))
-    assert calls["task"] == "image-classification" and calls["model"] == "some/model"
-    assert calls["kwargs"] == {"top_k": 2}
-    assert [(r.label, r.confidence) for r in results] == [("cardboard", 0.7), ("glass", 0.2)]
-
-
-@unit
-def test_unit_16_huggingface_classifier_load_failure_is_model_load_error(monkeypatch):
-    install_fake_transformers(monkeypatch, fail_load=True)
-    with pytest.raises(ModelLoadError) as info:
-        HuggingFaceClassifier("some/model").ensure_ready()
-    assert info.value.status_code == 503 and "no network" in info.value.details["reason"]
-
-
-@unit
-def test_unit_17_huggingface_classifier_predict_failure_is_inference_error(monkeypatch):
-    install_fake_transformers(monkeypatch, fail_call=True)
-    clf = HuggingFaceClassifier()
-    clf.ensure_ready()
-    with pytest.raises(InferenceError):
-        clf.predict(Image.new("RGB", (8, 8)))
-
-
-@unit
-def test_unit_18_huggingface_top_k_setter_validates():
-    clf = HuggingFaceClassifier()
-    clf.top_k = 3
-    assert clf.top_k == 3
-    with pytest.raises(ValueError):
-        clf.top_k = 0
-
-
-@unit
-def test_unit_19_clip_classifier_scores_all_labels(monkeypatch):
-    outputs = [{"label": label, "score": 0.1} for label in ClipZeroShotClassifier.LABELS]
-    calls = install_fake_transformers(monkeypatch, outputs=outputs)
-    clf = ClipZeroShotClassifier()
-    clf.ensure_ready()
-    results = clf.predict(Image.new("RGB", (8, 8)))
-    assert calls["task"] == "zero-shot-image-classification"
-    assert calls["kwargs"]["candidate_labels"] == ClipZeroShotClassifier.LABELS
-    assert len(results) == len(ClipZeroShotClassifier.LABELS) == 9
-
-
-@unit
-def test_unit_20_clip_classifier_failures_are_wrapped(monkeypatch):
-    install_fake_transformers(monkeypatch, fail_load=True)
-    with pytest.raises(ModelLoadError):
-        ClipZeroShotClassifier().ensure_ready()
-    install_fake_transformers(monkeypatch, fail_call=True)
-    clf = ClipZeroShotClassifier()
-    clf.ensure_ready()
-    with pytest.raises(InferenceError):
-        clf.predict(Image.new("RGB", (8, 8)))
 
 
 @unit
@@ -461,7 +395,8 @@ def test_unit_38_classifier_error_handler_returns_json():
     client = error_client(ClassifierErrorHandler, ModelLoadError("no model"))
     assert client.get("/boom").status_code == 503
 
-#integration tests
+
+# integration tests
 @integration
 def test_integration_01_classifier_feeds_the_rules_engine(engine):
     svc = ClassifierService(StubClassifier([["a metal can or tin", 0.8]]), ImagePreprocessor(), 0.35)
@@ -470,19 +405,9 @@ def test_integration_01_classifier_feeds_the_rules_engine(engine):
 
 
 @integration
-@pytest.mark.parametrize("backend,expected", [("clip", ClipZeroShotClassifier),
-                                              ("huggingface", HuggingFaceClassifier)])
-def test_integration_02_config_selects_the_classifier_backend(backend, expected):
-    app = create_app({"DATABASE_URL": "sqlite://", "KICONNECT_API_KEY": "",
-                      "CLASSIFIER_BACKEND": backend})
-    assert type(app.extensions["services"].classifier.backend) is expected
-
-
-@integration
-def test_integration_03_config_can_select_the_siglip2_backend(monkeypatch):
+def test_integration_03_app_uses_the_siglip2_backend(monkeypatch):
     install_fake_oop(monkeypatch)
-    app = create_app({"DATABASE_URL": "sqlite://", "KICONNECT_API_KEY": "",
-                      "CLASSIFIER_BACKEND": "siglip2"})
+    app = create_app({"DATABASE_URL": "sqlite://", "KICONNECT_API_KEY": ""})
     assert type(app.extensions["services"].classifier.backend) is SigLIP2Classifier
 
 
@@ -495,7 +420,8 @@ def test_integration_04_a_failing_model_gives_a_json_error_and_stores_nothing(ma
     assert res.status_code == 500 and res.get_json()["error"]["subsystem"] == "classifier"
     assert client.get("/api/dashboard").get_json()["summary"]["total"] == 0
 
-#functional tests
+
+# functional tests
 @functional
 def test_functional_01_scanning_a_photo_returns_decision_advice_and_dashboard(client, upload):
     res = upload(client)
@@ -542,8 +468,8 @@ def test_functional_06_files_over_the_size_limit_are_rejected(make_app):
                       content_type="multipart/form-data")
     assert res.status_code == 413 and res.get_json()["error"]["code"] == "invalid_image"
 
-#regression tests
 
+# regression tests
 @regression
 def test_regression_01_a_prediction_exactly_at_the_threshold_is_kept():
     kept = list(ConfidenceFilter(0.35)(ResultStream([ClassificationResult("paper", 0.35)])))
@@ -557,11 +483,15 @@ def test_regression_02_whole_words_only_so_scanner_is_not_a_metal_can():
 
 
 @regression
-def test_regression_03_every_clip_description_maps_to_the_intended_material():
+def test_regression_03_descriptive_labels_map_to_the_intended_material():
+    labels = ["a plastic bottle or plastic packaging", "a metal can or tin",
+              "a glass bottle or jar", "a sheet of paper or newspaper",
+              "a cardboard box", "food waste or fruit peel",
+              "clothing or fabric", "an electronic device or battery",
+              "general trash"]
     expected = ["plastic", "metal", "glass", "paper", "cardboard", "organic", "textile",
                 "e-waste", "trash"]
-    mapped = [LabelNormalizer().normalize(label) for label in ClipZeroShotClassifier.LABELS]
-    assert mapped == expected
+    assert [LabelNormalizer().normalize(label) for label in labels] == expected
 
 
 @regression

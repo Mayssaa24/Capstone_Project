@@ -1,5 +1,4 @@
-from app.classifier.backends import (ClipZeroShotClassifier, HuggingFaceClassifier,
-                                     SigLIP2Classifier)
+from app.classifier.backends import SigLIP2Classifier
 from app.classifier.preprocessor import ImagePreprocessor
 from app.classifier.service import ClassifierService
 from app.coach.coach import CoachService, OfflineCoach, OpenAICoach, PromptBuilder
@@ -20,12 +19,7 @@ class ServiceContainer:
         self.repository = ScanRepository(database)
         self.rules = RulesEngine(RuleSet(region))
 
-        if config["CLASSIFIER_BACKEND"] == "clip":
-            backend = ClipZeroShotClassifier()
-        elif config["CLASSIFIER_BACKEND"] == "siglip2":
-            backend = SigLIP2Classifier()
-        else:
-            backend = HuggingFaceClassifier(config["HF_MODEL"])
+        backend = SigLIP2Classifier()
         self.classifier = ClassifierService(
             backend, ImagePreprocessor(config["MAX_CONTENT_LENGTH"]), config["MIN_CONFIDENCE"])
 
