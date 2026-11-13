@@ -16,6 +16,15 @@ A user takes a photo of an item. An AI model classifies the material, local rule
 
 **Shared by everyone:** Connecting the four subsystems, the shared error structure, the README, the UML diagrams and the video.
 
+##  Implemented Classes
+
+| Team member | Subsystem | Implemented classes | Source files |
+|---|---|---|---|
+| [Manjeet] | Classifier | `WasteImage`, `PredictionResult`, `WasteClassifier`, `ModelEvaluator` | `app/classifier/classifier_oop.py` |
+| [Deepika] | Rules and Database | `Rule`, `RuleSet`, `Decision`, `RulesEngine`, `Database`, `ScanRepository` | `app/rules/` |
+| [Mayssaa] | AI Coach | `PromptBuilder`, `CoachAdvice`, `BaseCoach`, `OfflineCoach`, `OpenAICoach`, `CoachService` | `app/coach/` |
+| [Divya] | Dashboard | `ScanAnalytics`, `TrendCalculator`, `ChartBuilder`, `DashboardService` | `app/dashboard/` |
+
 
 ## 2. System Design
 
