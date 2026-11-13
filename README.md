@@ -1,4 +1,4 @@
-# AI-Powered Waste Sorting Assistant
+# AI-Powered Waste Sorting and Recycling Assistant
 
 A user takes a photo of an item. An AI model classifies the material, local rules (Dortmund) decide which bin it belongs in, an AI coach gives tips, and a dashboard shows recycling statistics.
 
