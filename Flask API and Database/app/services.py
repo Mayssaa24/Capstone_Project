@@ -1,5 +1,4 @@
-from app.classifier.backends import (ClipZeroShotClassifier, HuggingFaceClassifier,
-                                     SigLIP2Classifier)
+from app.classifier.backends import SigLIP2Classifier
 from app.classifier.preprocessor import ImagePreprocessor
 from app.classifier.service import ClassifierService
 from app.coach.coach import CoachService, OfflineCoach, OpenAICoach, PromptBuilder
