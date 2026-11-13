@@ -433,13 +433,11 @@ Docker starts two containers: a MySQL 8 database (`db`) and the Flask app (`web`
 
 To stop: press `Ctrl+C`, then run `docker compose down`. To also delete the database data, run `docker compose down -v`.
 
-**To use KI:connect** 
+**To use KI:connect** (Without a key, the coach automatically uses the offline tips)
 
 ```powershell
 copy .env.example .env
 ```
-Without a key, the coach automatically uses the offline tips
-
 Enter your key in `.env` (`KICONNECT_API_KEY=...`) and run `docker compose up --build` again.
 
 The database credentials in `docker-compose.yaml` are demo values for the local Docker setup only.
