@@ -377,6 +377,25 @@ classDiagram
     DashboardService ..> TrendCalculator : initializes and uses
     DashboardService ..> ChartBuilder : initializes and uses
 ```
+## Dataset and Model References
+
+The waste classification component is based on the following dataset and model resources:
+
+### Dataset
+- **Garbage Classification V2** — sumn2u, Kaggle.  
+  https://www.kaggle.com/datasets/sumn2u/garbage-classification-v2
+
+### Model
+- **Augmented-Waste-Classifier-SigLIP2** — prithivMLmods, Hugging Face.  
+  https://huggingface.co/prithivMLmods/Augmented-Waste-Classifier-SigLIP2
+
+### References
+1. sumn2u. *Garbage Classification V2* [Dataset]. Kaggle.  
+   https://www.kaggle.com/datasets/sumn2u/garbage-classification-v2
+
+2. prithivMLmods. *Augmented-Waste-Classifier-SigLIP2* [Model]. Hugging Face.  
+   https://huggingface.co/prithivMLmods/Augmented-Waste-Classifier-SigLIP2
+
 
 ## Run it 
 
