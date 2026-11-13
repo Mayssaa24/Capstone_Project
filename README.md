@@ -2,7 +2,7 @@
 
 A user takes a photo of an item. An AI model classifies the material, local rules (Dortmund) decide which bin it belongs in, an AI coach gives tips, and a dashboard shows recycling statistics.
 
-# Capstone video
+# Capstone Project Demonstration Video
 https://drive.google.com/file/d/1AaMTdsMo0WOdHoPJbU5Nx7a1XxOt0kKR/view?usp=drivesdk
 ---
 
