@@ -4,6 +4,9 @@ const $ = (id) => document.getElementById(id);
 const charts = {};
 let stream = null;
 
+// Labels for the scan-activity trend KPI (value comes from summary.trend)
+const TREND = { up: "▲ Rising", down: "▼ Falling", flat: "▬ Stable" };
+
 function esc(text) {
   const d = document.createElement("div");
   d.textContent = text ?? "";
@@ -58,6 +61,8 @@ function renderDashboard(data) {
   $("kpi-total").textContent = s.total;
   $("kpi-rate").textContent = `${s.recycling_rate}%`;
   $("kpi-conf").textContent = `${Math.round(s.average_confidence * 100)}%`;
+  $("kpi-trend").textContent = TREND[s.trend] || TREND.flat;
+  $("kpi-trend").dataset.trend = TREND[s.trend] ? s.trend : "flat";
   drawChart("materials", "chart-materials", data.charts.materials);
   drawChart("bins", "chart-bins", data.charts.bins);
   drawChart("trend", "chart-trend", data.charts.trend);
