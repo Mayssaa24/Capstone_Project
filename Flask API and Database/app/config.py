@@ -5,8 +5,6 @@ DEFAULTS = {
     "REGION": "Dortmund",
     "MIN_CONFIDENCE": 0.35,
     "MAX_UPLOAD_MB": 8,
-    "CLASSIFIER_BACKEND": "clip",                    # clip
-    "HF_MODEL": "yangy50/garbage-classification",
     "KICONNECT_API_KEY": "",
     "KICONNECT_MODEL": "GPT-OSS-120B",
 }
