@@ -3,8 +3,8 @@
 Snap or upload a photo, sort your waste right. This AI-powered recycling assistant lets users take a picture of an item or upload one from their device, then uses SigLIP 2, a vision-language model, to classify its material, applies local waste-sorting rules to decide which bin it belongs in, and has an AI coach explain the choice with practical tips, such as rinsing containers or separating lids. A dashboard tracks recycling statistics over time, showing how many items you’ve sorted and how your materials break down.
 
 # Capstone Project Demonstration Video
-https://drive.google.com/file/d/1AaMTdsMo0WOdHoPJbU5Nx7a1XxOt0kKR/view?usp=drivesdk
----
+
+https://drive.google.com/file/d/1uJoiBdyAoqOFguX4792bM5jz9gXxRsQT/view?usp=drivesdk
 
 ## 1. Team Overview
 ## Team and Responsibilities
