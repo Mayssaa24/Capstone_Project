@@ -73,17 +73,6 @@ classDiagram
         +predict(image)*
     }
 
-    class HuggingFaceClassifier {
-        -top_k
-        +initialize()
-        +predict(image)
-    }
-
-    class ClipZeroShotClassifier {
-        +initialize()
-        +predict(image)
-    }
-
     class SigLIP2Classifier {
         +initialize()
         +predict(image)
@@ -154,8 +143,6 @@ classDiagram
         +evaluate()
     }
 
-    BaseClassifier <|-- HuggingFaceClassifier
-    BaseClassifier <|-- ClipZeroShotClassifier
     BaseClassifier <|-- SigLIP2Classifier
 
     ClassifierService --> BaseClassifier : uses backend
