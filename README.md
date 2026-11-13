@@ -409,6 +409,7 @@ The waste classification component is based on the following dataset and model r
 git clone --branch main --single-branch https://github.com/Mayssaa24/Capstone_Project.git
 cd Capstone_Project\waste_sorting
 copy .env.example .env
+notepad .env
 docker compose up --build
 ```
 
